@@ -1,0 +1,10 @@
+<table name="mitablagenial">
+	<column name="col" type="int" modifier="null"/>
+	<column name="col2" type="string" modifier="null"/>
+	<column name="col3" type="string" modifier="not null"/>
+</table>
+<table name="prueba">
+	<column name="col" type="int" modifier="null"/>
+	<column name="col2" type="string" modifier="null"/>
+	<column name="col3" type="string" modifier="not null"/>
+</table>

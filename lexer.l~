@@ -1,0 +1,103 @@
+%{
+
+/**
+  *Inclusion de algunas variables externas y bibliotecas para que el funcionamiento se de
+  */
+#include "y.tab.h"
+/*verificacion de la existencia de una tabla*/
+short exist_table_name = 0;
+/*contador de lineas*/
+extern long line_counter;
+%}
+
+/*regex de create*/
+create	(create|CREATE)
+/*regex del modificador de columna*/
+columnModifier (NULL|NOT\ NULL|DEFAULT\ VALUE|null|not\ null|default\ value)
+/*regex del tipo de dato*/
+datatype (int|double|date|string|long|short|INT|DOUBLE|DATE|STRING|LONG|SHORT)
+/*regex auxiliar del identificador*/
+identifierAux [A-Za-z_]
+/*regex de un identificador*/
+identifier	{identifierAux}[A-Za-z_0-9]*
+/*regex para un identificador de un espacio en blanco*/
+whitespace [ \t\r\n]+
+/* regex para el final de una expresion*/
+end	\;
+/*regex para el parentesis izquierdo*/
+leftparentesis \(
+/*regex para el parentesis derecho*/
+rightparentesis \)
+/*regex para la aparicion de una coma*/
+coma \,
+%%
+
+{create}	{
+//funcion cuando aparece un regex de create
+//inserta el siguiente texto en el archivo
+//<table name="nombreTabla"
+
+		fputc('<',yyout);
+		fputs("table name=",yyout);
+		}
+
+{datatype}	{
+/*
+funcion cuando aparece un regex de datatype
+escribe lo siguiente en el archivo de salida:
+type="TipoDeDato"
+*/
+		fputs("type=\"",yyout);
+		fputs(yytext, yyout);
+		fputs("\" ",yyout);
+		return DATATYPE;
+		}
+
+{columnModifier} {
+/*
+funcion cuando aparece un regex de columnModifier
+escribe lo siguiente en el archivo de salida:
+modifier="Modificador">\n
+*/
+		fputs("modifier=\"",yyout);
+		fputs(yytext,yyout);
+		fputs("\"/>\n",yyout);
+		return COLUMN_MODIFIER;
+		}
+
+{identifier}	{
+		if (!exist_table_name){
+			fputs("\"",yyout);
+			fputs(yytext,yyout);
+			fputs("\">\n",yyout);
+			exist_table_name = 1;
+		}
+		else{
+			fputs("\t<column name=\"",yyout);
+                        fputs(yytext,yyout);
+			fputs("\" ", yyout);	
+		}
+		return IDENTIFIER;
+		}
+
+{end}		{
+		return DOTCOMA;
+		}
+{leftparentesis}	{return PARENTESIS_IZQUIERDO;}
+{rightparentesis}	{
+			exist_table_name = 0;
+			fputs("</table>\n",yyout);
+			return PARENTESIS_DERECHO;
+			}
+{coma}		{return COMA;}
+{whitespace}	{
+		if (yytext[0] == '\n' || yytext[0] == '\r'){
+			line_counter++;
+		}
+		}
+		
+
+.	{return 0;}
+%%
+
+int yywrap() { return 1; }
