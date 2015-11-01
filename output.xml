@@ -1,0 +1,51 @@
+<db>
+	<table name="mitablagenial">
+		<column name="col" type="int" modifier="null"/>
+		<column name="col2" type="varchar(5)" modifier="null"/>
+		<column name="col3" type="int" modifier="not null"/>
+	</table>
+	<table name="prueba">
+		<column name="col" type="int" modifier="null"/>
+		<column name="col2" type="int" modifier="null"/>
+		<column name="col3" type="int" modifier="not null"/>
+	</table>
+	<table name="PROJ">
+		<column name="PROJNO" type="CHAR(6)" modifier="NOT NULL"/>
+		<column name="PROJNAME" type="VARCHAR(24)" modifier="NOT NULL"/>
+		<column name="DEPTNO" type="CHAR(3)" modifier="NOT NULL WITH DEFAULT 'AAA'"/>
+		<column name="RESPEMP" type="CHAR(6)" modifier="NOT NULL"/>
+		<column name="PRSTAFF" type="DECIMAL(5,2)" />
+		<column name="PRSTAXT" type="DECIMAL(5)" />
+		<column name="PRSTDATE" type="DATE" />
+		<column name="PRENDATE" type="DATE" />
+		<column name="MAJPROJ" type="CHAR(6)" modifier="NOT NULL"/>
+	</table>
+	<table name="DEPT">
+		<column name="DEPTNO" type="CHAR(3)" modifier="NOT NULL"/>
+		<column name="DEPTNAME" type="VARCHAR(36)" modifier="NOT NULL"/>
+		<column name="MGRNO" type="CHAR(6)" />
+		<column name="ADMRDEPT" type="CHAR(3)" modifier="NOT NULL"/>
+		<column name="LOCATION" type="CHAR(16)" />
+	</table>
+	<table name="TS01TB">
+		<column name="C1" type="SMALLINT" />
+		<column name="C2" type="DECIMAL(9,2)" />
+		<column name="C3" type="CHAR(4)" />
+	</table>
+	<table name="TS02TB">
+		<column name="C1" type="SMALLINT" />
+		<column name="C2" type="DECIMAL(9,2)" />
+		<column name="C3" type="CHAR(4)" />
+	</table>
+	<table name="TB01">
+		<column name="ACCT_NUM" type="INTEGER" />
+		<column name="CUST_LAST_NM" type="CHAR(15)" />
+		<column name="LAST_ACTIVITY_DT" type="VARCHAR(25)" />
+		<column name="COL2" type="CHAR(10)" />
+		<column name="COL3" type="CHAR(25)" />
+		<column name="COL4" type="CHAR(25)" />
+		<column name="COL5" type="CHAR(25)" />
+		<column name="COL6" type="CHAR(55)" />
+		<column name="STATE" type="CHAR(55)" />
+	</table>
+</db>

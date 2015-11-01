@@ -2,4 +2,4 @@
 
 lex "$2"
 yacc -d "$3"
-g++ -o "$1" y.tab.c -ll 
+g++ -o "$1" y.tab.c -ll -g -DYYDEBUG=1

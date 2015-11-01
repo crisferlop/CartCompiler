@@ -1,2 +1,0 @@
-create mitablagenial (col int null, col2 string null, col3 string not null);
-create prueba (col int null, col2 string null, col3 string not null);

@@ -20,11 +20,12 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 	#include <stdio.h>
 	#include <string.h>
 	#include <vector>
-	long line_counter = 0L;
+	long line_counter = 1L;
 	std::vector<char*> tablasExistentes;
 	std::vector<char*> columnasExistentes;
 	short err = 0;
-#line 11 "parser.y"
+	short debug = 0;
+#line 12 "parser.y"
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
@@ -32,10 +33,10 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #ifndef YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
 typedef union{
-	char *mystring;
+	char* mystring;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
-#line 38 "y.tab.c"
+#line 39 "y.tab.c"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -69,55 +70,56 @@ typedef union{
 extern int YYPARSE_DECL();
 
 #define CREATE 257
-#define IDENTIFIER 258
-#define END 259
-#define PARENTESIS_IZQUIERDO 260
-#define PARENTESIS_DERECHO 261
-#define DOTCOMA 262
-#define COMA 263
-#define PARENTESIS_CUADRADO_IZQUIERDO 264
-#define PARENTESIS_CUADRADO_DERECHO 265
-#define COLUMN_MODIFIER 266
-#define DATATYPE 267
+#define TABLE 258
+#define IDENTIFIER 259
+#define END 260
+#define PARENTESIS_IZQUIERDO 261
+#define PARENTESIS_DERECHO 262
+#define DOTCOMA 263
+#define COMA 264
+#define PARENTESIS_CUADRADO_IZQUIERDO 265
+#define PARENTESIS_CUADRADO_DERECHO 266
+#define COLUMN_MODIFIER 267
+#define DATATYPE 268
 #define YYERRCODE 256
 static const short yylhs[] = {                           -1,
-    0,    0,    1,    2,    2,
+    0,    0,    1,    2,    2,    2,    2,
 };
 static const short yylen[] = {                            2,
-    4,    5,    3,    3,    5,
+    5,    6,    3,    3,    2,    4,    5,
 };
 static const short yydefred[] = {                         0,
-    0,    0,    0,    0,    0,    0,    0,    0,    0,    3,
-    2,    0,    0,    5,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    3,    2,    0,    0,    6,    0,    7,
 };
 static const short yydgoto[] = {                          2,
-    5,    7,
+    6,    8,
 };
-static const short yysindex[] = {                      -257,
- -256,    0, -259, -255, -258, -262, -254, -257, -260,    0,
-    0, -253, -255,    0,
+static const short yysindex[] = {                      -255,
+ -253,    0, -252, -251, -250, -257, -260, -249, -255, -264,
+    0,    0, -250, -248,    0, -250,    0,
 };
 static const short yyrindex[] = {                         0,
-    0,    0,    0,    0,    0,    0,    0,    8,    0,    0,
-    0, -252,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,   11, -247,
+    0,    0,    0, -245,    0,    0,    0,
 };
 static const short yygindex[] = {                         3,
-    0,   -1,
+    0,  -12,
 };
-#define YYTABLESIZE 12
-static const short yytable[] = {                          1,
-    4,    3,    6,    8,    9,   12,   10,    1,    4,   13,
-   11,   14,
+#define YYTABLESIZE 17
+static const short yytable[] = {                         13,
+   15,    1,   14,   17,    3,    9,    4,   10,    7,    5,
+    1,   12,   11,    0,    5,   16,    4,
 };
-static const short yycheck[] = {                        257,
-  260,  258,  258,  262,  267,  266,  261,    0,  261,  263,
-    8,   13,
+static const short yycheck[] = {                        264,
+   13,  257,  267,   16,  258,  263,  259,  268,  259,  261,
+    0,    9,  262,   -1,  262,  264,  262,
 };
 #define YYFINAL 2
 #ifndef YYDEBUG
 #define YYDEBUG 0
 #endif
-#define YYMAXTOKEN 267
+#define YYMAXTOKEN 268
 #define YYTRANSLATE(a) ((a) > YYMAXTOKEN ? (YYMAXTOKEN + 1) : (a))
 #if YYDEBUG
 static const char *yyname[] = {
@@ -128,17 +130,19 @@ static const char *yyname[] = {
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"CREATE","IDENTIFIER","END",
-"PARENTESIS_IZQUIERDO","PARENTESIS_DERECHO","DOTCOMA","COMA",
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"CREATE","TABLE","IDENTIFIER",
+"END","PARENTESIS_IZQUIERDO","PARENTESIS_DERECHO","DOTCOMA","COMA",
 "PARENTESIS_CUADRADO_IZQUIERDO","PARENTESIS_CUADRADO_DERECHO","COLUMN_MODIFIER",
 "DATATYPE","illegal-symbol",
 };
 static const char *yyrule[] = {
 "$accept : initial",
-"initial : CREATE IDENTIFIER table DOTCOMA",
-"initial : CREATE IDENTIFIER table DOTCOMA initial",
+"initial : CREATE TABLE IDENTIFIER table DOTCOMA",
+"initial : CREATE TABLE IDENTIFIER table DOTCOMA initial",
 "table : PARENTESIS_IZQUIERDO columnas PARENTESIS_DERECHO",
 "columnas : IDENTIFIER DATATYPE COLUMN_MODIFIER",
+"columnas : IDENTIFIER DATATYPE",
+"columnas : IDENTIFIER DATATYPE COMA columnas",
 "columnas : IDENTIFIER DATATYPE COLUMN_MODIFIER COMA columnas",
 
 };
@@ -177,18 +181,30 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 48 "parser.y"
+#line 51 "parser.y"
 
 #include "lex.yy.c"
 int main(int argc, char** args){
-	if (argc == 3){
+	if (argc == 3 || argc == 4){
 		if (yyin = fopen(args[1],"r")){
+			if (argc == 4 && strcmp(args[3],"-d")==0){debug = 1;printf("Debuger encendido\n");}
+			else if (argc == 4){
+				printf("Error del tercer argumento, solamente se admite \"-d\", sin comillas\n");
+				printf("Dicho argumento es para debugear la compilacion\n");
+				fclose(yyin);
+				return -1;
+			}
 			yyout = fopen(args[2],"w+");
+			fputs("<db>\n",yyout);
 			yyparse();
+			fputs("</db>",yyout);
 			fclose(yyin);
 			fclose(yyout);
 			if (err){
 				remove(args[2]);
+				printf("Error de compilacion!\n");
+			}else{
+				printf("Compilacion terminada con exito!\n");
 			}
 		}
 		else printf("el archivo \"%s\" no existe\n", args[1]);
@@ -197,16 +213,18 @@ int main(int argc, char** args){
 		printf("Para compilar debe insertar los argumentos:\n");
 		printf("\t1) archivo de entrada\n");
 		printf("\t2) archivo de salida\n");
+		printf("\t3) -d para debugeo, este argumento es opcional\n");
 	}
 	return 0;
 }
-
-int yyerror( char *s ) {
+int yyerror(const char* s ) {
+	yyerrok;
 	fprintf(stderr,"%s: %s at line %ld\n", s, yytext,line_counter);
+    	yyclearin;
 	err = 1;
-	return -1;
+//	return err;
 }
-#line 208 "y.tab.c"
+#line 226 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -408,11 +426,6 @@ yyreduce:
         memset(&yyval, 0, sizeof yyval);
     switch (yyn)
     {
-case 2:
-#line 33 "parser.y"
-	{return 0;}
-break;
-#line 414 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

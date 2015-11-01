@@ -1,52 +1,44 @@
 %{
 
-/**
-  *Inclusion de algunas variables externas y bibliotecas para que el funcionamiento se de
-  */
 #include "y.tab.h"
-/*verificacion de la existencia de una tabla*/
 short exist_table_name = 0;
-/*contador de lineas*/
-extern long line_counter;
+short exist_column_name = 0;
+short exist_modifier = 0;
+//extern long line_counter;
+
 %}
 
-/*regex de create*/
 create	(create|CREATE)
-/*regex del modificador de columna*/
-columnModifier (NULL|NOT\ NULL|DEFAULT\ VALUE|null|not\ null|default\ value)
-/*regex del tipo de dato*/
-datatype (int|double|date|string|long|short|INT|DOUBLE|DATE|STRING|LONG|SHORT)
-/*regex auxiliar del identificador*/
+columnModifier ((NULL|NOT\ NULL)(\ WITH\ DEFAULT\ {value})?|(null|not\ null)(\ with\ default\ {value})?)
+table	(table|TABLE)
+numericValue (0|[1-9][0-9]*)
+stringValue (\'([A-Za-z0-9]|\ )*\'|\"([A-Za-z0-9]|\ )*\")
+value	{numericValue}|{stringValue}
+matrix (DECIMAL|DEC|dec|decimal|NUMERIC|numeric)\({numericValue}\)
+array (char|varchar|CHAR|VARCHAR|character|CHARACTER)\({numericValue}\)
+datatype (int|integer|date|time|timestamp|smallint|bigint|INT|INTEGER|DATE|SMALLINT|BIGINT|TIME|TIMESTAMP)|{array}|{matrix}
 identifierAux [A-Za-z_]
-/*regex de un identificador*/
 identifier	{identifierAux}[A-Za-z_0-9]*
-/*regex para un identificador de un espacio en blanco*/
-whitespace [ \t\r\n]+
-/* regex para el final de una expresion*/
+whitespace (\ |\t|\r|\n)+
 end	\;
-/*regex para el parentesis izquierdo*/
 leftparentesis \(
-/*regex para el parentesis derecho*/
 rightparentesis \)
-/*regex para la aparicion de una coma*/
 coma \,
+
 %%
 
 {create}	{
-//funcion cuando aparece un regex de create
-//inserta el siguiente texto en el archivo
-//<table name="nombreTabla"
-
+		printf(">>Se esta compilando la entrada create\n");
 		fputc('<',yyout);
 		fputs("table name=",yyout);
+		return CREATE;
+		}
+{table}		{
+		return TABLE;
 		}
 
 {datatype}	{
-/*
-funcion cuando aparece un regex de datatype
-escribe lo siguiente en el archivo de salida:
-type="TipoDeDato"
-*/
+		printf("compilando el tipo de dato: %s\n", yytext);
 		fputs("type=\"",yyout);
 		fputs(yytext, yyout);
 		fputs("\" ",yyout);
@@ -54,28 +46,51 @@ type="TipoDeDato"
 		}
 
 {columnModifier} {
-/*
-funcion cuando aparece un regex de columnModifier
-escribe lo siguiente en el archivo de salida:
-modifier="Modificador">\n
-*/
+		exist_modifier = 1;
+		printf("compilando el modificador: %s\n", yytext);
 		fputs("modifier=\"",yyout);
 		fputs(yytext,yyout);
 		fputs("\"/>\n",yyout);
 		return COLUMN_MODIFIER;
-		}
+}
 
 {identifier}	{
 		if (!exist_table_name){
+			printf("compilando tabla: %s chars %d\n", yytext, yyleng);
 			fputs("\"",yyout);
 			fputs(yytext,yyout);
 			fputs("\">\n",yyout);
 			exist_table_name = 1;
+			char *table_name = (char*)malloc(sizeof(char)*yyleng + sizeof(char));
+			memcpy(table_name, yytext, yyleng);
+			table_name[sizeof(char)*yyleng] = '\0';
+			for (int i = 0; i < tablasExistentes.size();i++){
+				if (strcmp(tablasExistentes.at(i), table_name) == 0){
+					printf("La tabla \"%s\" ya existe, la compilacion se aborata\n", table_name);
+					return 0;
+				}
+			}
+			tablasExistentes.push_back(table_name);
 		}
 		else{
+			if (!exist_modifier){
+				fputs(">\n",yyout);
+			}else exist_modifier = 0;
+			printf("compilando columna: %s\n", yytext);
 			fputs("\t<column name=\"",yyout);
                         fputs(yytext,yyout);
-			fputs("\" ", yyout);	
+			fputs("\" ", yyout);
+			char *column_name = (char*)malloc(sizeof(char)*yyleng + sizeof(char));
+                        memcpy(column_name, yytext, yyleng);
+                        column_name[sizeof(char)*yyleng] = '\0';
+                        for (int i = 0; i < columnasExistentes.size();i++){
+                                if (strcmp(columnasExistentes.at(i), column_name) == 0){
+                                        printf("La columna \"%s\" ya existe en la tabla %s, la compilacion se aborata\n", column_name, tablasExistentes.back());
+                                        return 0;
+                                }
+                        }
+			columnasExistentes.push_back(column_name);
+
 		}
 		return IDENTIFIER;
 		}
@@ -83,15 +98,25 @@ modifier="Modificador">\n
 {end}		{
 		return DOTCOMA;
 		}
+
 {leftparentesis}	{return PARENTESIS_IZQUIERDO;}
+
 {rightparentesis}	{
-			exist_table_name = 0;
+			printf("se ha terminado la compilacion de la tabla\n");
+			exist_table_name = exist_column_name= 0;
 			fputs("</table>\n",yyout);
+			while(!columnasExistentes.empty()){
+				free(columnasExistentes.back());
+				columnasExistentes.pop_back();
+			}
+			printf("el largo es de %d \n", columnasExistentes.size());
 			return PARENTESIS_DERECHO;
 			}
+
 {coma}		{return COMA;}
+
 {whitespace}	{
-		if (yytext[0] == '\n' || yytext[0] == '\r'){
+		if (yytext[0] == '\n'){
 			line_counter++;
 		}
 		}
