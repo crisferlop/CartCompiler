@@ -2,4 +2,5 @@
 
 lex "$2"
 yacc -d "$3"
-g++ -o "$1" y.tab.c -ll -g -DYYDEBUG=1
+g++ -c varint.cpp
+g++ -o "$1" y.tab.c varint.o -ll

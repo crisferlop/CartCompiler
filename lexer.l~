@@ -1,128 +1,160 @@
 %{
 
 #include "y.tab.h"
-short exist_table_name = 0;
-short exist_column_name = 0;
-short exist_modifier = 0;
+#include <string.h> 
 //extern long line_counter;
+char * identifierstr = 0;
 
 %}
+Define Define
+as as
+Blocks Blocks
 
-create	(create|CREATE)
-columnModifier ((NULL|NOT\ NULL)(\ WITH\ DEFAULT\ {value})?|(null|not\ null)(\ with\ default\ {value})?)
-table	(table|TABLE)
+Value Value
+set set
+out out
+for for
+
+Go Go
+
+Back Back
+Straight Straight
+
+Till Till
+
+Turn Turn
+
+Left Left
+Right Right
+
+
+Keep Keep
+going going
+Skip Skip
+Keepend Keepend
+
+
+For For
+
+Times Times
+
+LeftSquareBracked \[
+
+Walk Walk
+
+RightSquareBracked \]
+
+ForEnd ForEnd
+
+
+When When
+
+Then Then
+
+Whend Whend
+
+Start Start
+
+Stop Stop
+
+On On
+
+Rest Rest
+
+Print print
+
 numericValue (0|[1-9][0-9]*)
-stringValue (\'([A-Za-z0-9]|\ )*\'|\"([A-Za-z0-9]|\ )*\")
-value	{numericValue}|{stringValue}
-matrix (DECIMAL|DEC|dec|decimal|NUMERIC|numeric)\({numericValue}\)
-array (char|varchar|CHAR|VARCHAR|character|CHARACTER)\({numericValue}\)
-datatype (int|integer|date|time|timestamp|smallint|bigint|INT|INTEGER|DATE|SMALLINT|BIGINT|TIME|TIMESTAMP)|{array}|{matrix}
+value	{numericValue}
+
 identifierAux [A-Za-z_]
-identifier	{identifierAux}[A-Za-z_0-9]*
+identifier {identifierAux}[A-Za-z_0-9]*
+
 whitespace (\ |\t|\r|\n)+
 end	\;
-leftparentesis \(
-rightparentesis \)
-coma \,
+operator \-|\+
+equal \=
+notEqual !\=
+high \>
+less \<
+equalHigh \>\=
+equalLess \<\=
+
+LeftBlockBracked \{
+RightBlockBracked \}
+
 
 %%
-
-{create}	{
-		printf(">>Se esta compilando la entrada create\n");
-		fputc('<',yyout);
-		fputs("table name=",yyout);
-		return CREATE;
-		}
-{table}		{
-		return TABLE;
-		}
-
-{datatype}	{
-		printf("compilando el tipo de dato: %s\n", yytext);
-		fputs("type=\"",yyout);
-		fputs(yytext, yyout);
-		fputs("\" ",yyout);
-		return DATATYPE;
-		}
-
-{columnModifier} {
-		exist_modifier = 1;
-		printf("compilando el modificador: %s\n", yytext);
-		fputs("modifier=\"",yyout);
-		fputs(yytext,yyout);
-		fputs("\"/>\n",yyout);
-		return COLUMN_MODIFIER;
-}
-
-{identifier}	{
-		if (!exist_table_name){
-			printf("compilando tabla: %s chars %d\n", yytext, yyleng);
-			fputs("\"",yyout);
-			fputs(yytext,yyout);
-			fputs("\">\n",yyout);
-			exist_table_name = 1;
-			char *table_name = (char*)malloc(sizeof(char)*yyleng + sizeof(char));
-			memcpy(table_name, yytext, yyleng);
-			table_name[sizeof(char)*yyleng] = '\0';
-			for (int i = 0; i < tablasExistentes.size();i++){
-				if (strcmp(tablasExistentes.at(i), table_name) == 0){
-					printf("La tabla \"%s\" ya existe, la compilacion se aborata\n", table_name);
-					return 0;
-				}
-			}
-			tablasExistentes.push_back(table_name);
-		}
-		else{
-			if (!exist_modifier){
-				fputs(">\n",yyout);
-			}else exist_modifier = 0;
-			printf("compilando columna: %s\n", yytext);
-			fputs("\t<column name=\"",yyout);
-                        fputs(yytext,yyout);
-			fputs("\" ", yyout);
-			char *column_name = (char*)malloc(sizeof(char)*yyleng + sizeof(char));
-                        memcpy(column_name, yytext, yyleng);
-                        column_name[sizeof(char)*yyleng] = '\0';
-                        for (int i = 0; i < columnasExistentes.size();i++){
-                                if (strcmp(columnasExistentes.at(i), column_name) == 0){
-                                        printf("La columna \"%s\" ya existe en la tabla %s, la compilacion se aborata\n", column_name, tablasExistentes.back());
-                                        return 0;
-                                }
-                        }
-			columnasExistentes.push_back(column_name);
-
-		}
-		return IDENTIFIER;
-		}
 
 {end}		{
 		return DOTCOMA;
 		}
 
-{leftparentesis}	{return PARENTESIS_IZQUIERDO;}
 
-{rightparentesis}	{
-			printf("se ha terminado la compilacion de la tabla\n");
-			exist_table_name = exist_column_name= 0;
-			fputs("</table>\n",yyout);
-			while(!columnasExistentes.empty()){
-				free(columnasExistentes.back());
-				columnasExistentes.pop_back();
-			}
-			printf("el largo es de %d \n", columnasExistentes.size());
-			return PARENTESIS_DERECHO;
-			}
 
-{coma}		{return COMA;}
+{Define} {return DEFINE;}
+{as} {return AS;}
+{Blocks} {return BLOCKS;}
 
-{whitespace}	{
-		if (yytext[0] == '\n'){
-			line_counter++;
-		}
-		}
-		
+{Value} {return VALUE_SENTENCE;}
+{set} {return SET;}
+{out} {return OUT;}
+{for} {return FOR;}
 
-.	{return 0;}
+{Go} {return GO;}
+{Back} {yylval.str = strdup(yytext);return BACK;}
+{Straight} {yylval.str = strdup(yytext);return STRAIGHT;}
+{Till} {return TILL;}
+{Turn} {return TURN;}
+{Left} {return LEFT;}
+{Right} {return RIGHT;}
+
+{Keep} {return KEEP;}
+{going} {return GOING;}
+{Skip} {return SKIP;}
+{Keepend} {return KEEPEND;}
+{For} {return FOR_CYCLE;}
+{Times} {return TIMES;}
+{LeftSquareBracked} {return LEFT_SQUARE_BRACKED;}
+{Walk} {return WALK;}
+{RightSquareBracked} {return RIGHT_SQUARE_BRACKED;}
+{ForEnd} {return FOREND;}
+
+
+{When} {return WHEN;}
+{Then} {return THEN;}
+{Whend} {return WHEND;}
+{Start} {return START;}
+{Stop} {return STOP;}
+{On} {return ON;}
+{Rest} {return REST;}
+{value} {
+	yylval.integer=atoi(yytext);
+	return VALUE;}
+{Print} {return PRINT;}
+
+{identifier} {
+	free( identifierstr);
+	identifierstr = (char*)malloc(sizeof(char)*yyleng + sizeof(char));
+	memcpy(identifierstr, yytext, yyleng);
+	identifierstr[sizeof(char)*yyleng] = '\0';
+	yylval.str = identifierstr;
+	return IDENTIFIER;}
+
+{whitespace} {if (yytext[0] == '\n')line_counter++;/*return WHITE_SPACE;*/}
+{operator} {return OPERATOR;}
+{LeftBlockBracked} {return LEFT_BLOCK_BRACKED;}
+{RightBlockBracked} {return RIGHT_BLOCK_BRACKED;}
+
+{equal} {return EQUAL;}
+{notEqual} {return NOT_EQUAL;}
+{high} {return HIGH;}
+{less} {return LESS;}
+{equalHigh} {return EQUAL_HIGH;}
+{equalLess} {return EQUAL_LESS;}
+
+
+
+
 %%
 
-int yywrap() { return 1; }
+int yywrap() { return 1;}

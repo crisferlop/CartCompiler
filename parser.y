@@ -2,50 +2,157 @@
 	#include <stdio.h>
 	#include <string.h>
 	#include <vector>
+	#include "varint.h"
 	long line_counter = 1L;
-	std::vector<char*> tablasExistentes;
-	std::vector<char*> columnasExistentes;
 	short err = 0;
 	short debug = 0;
+	long block = 0;
+	std::vector< VarInt * > BlockList;
 %}
 
 %union{
-	char* mystring;
+	char* str;
+	int integer;
 }
 
-%token CREATE
-%token TABLE
-%token IDENTIFIER
-%token END
-%token PARENTESIS_IZQUIERDO
-%token PARENTESIS_DERECHO
+
+%token DEFINE
+%token AS
+%token BLOCKS
+%token VALUE_SENTENCE
+%token SET
+%token OUT
+%token FOR
+%token GO
+%token <str> BACK
+%token <str> STRAIGHT
+%token TILL
+%token TURN
+%token LEFT
+%token RIGHT
+%token KEEP
+%token GOING
+%token SKIP
+%token KEEPEND
+%token FOR_CYCLE
+%token TIMES
+%token LEFT_SQUARE_BRACKED
+%token WALK
+%token RIGHT_SQUARE_BRACKED
+%token FOREND
+%token WHEN
+%token THEN
+%token WHEND
+%token START
+%token STOP
+%token ON
+%token REST
+%token <integer> VALUE
+%token <str> IDENTIFIER
+%token WHITE_SPACE
 %token DOTCOMA
-%token COMA
-%token PARENTESIS_CUADRADO_IZQUIERDO
-%token PARENTESIS_CUADRADO_DERECHO
-%token COLUMN_MODIFIER
-%token DATATYPE
+%token OPERATOR
+%token LEFT_BLOCK_BRACKED
+%token RIGHT_BLOCK_BRACKED
+
+%token EQUAL
+%token NOT_EQUAL
+%token HIGH
+%token LESS
+%token EQUAL_HIGH
+%token EQUAL_LESS
+%token PRINT
+
+
+%type <integer> mathematicExpresion
+%type <integer> aValue
+%type <str> error
 
 %start initial
+
 
 %%
 
 initial:
-	CREATE TABLE IDENTIFIER table DOTCOMA
-	| CREATE TABLE IDENTIFIER table DOTCOMA initial
+	expresion
+	| expresion initial
 ;
 
-table:
-	PARENTESIS_IZQUIERDO columnas PARENTESIS_DERECHO
+expresion:
+    WHEN condition THEN  LEFT_BLOCK_BRACKED initial RIGHT_BLOCK_BRACKED WHEND DOTCOMA {block++;}
+    | FOR_CYCLE VALUE TIMES LEFT_SQUARE_BRACKED WALK VALUE IDENTIFIER RIGHT_SQUARE_BRACKED LEFT_BLOCK_BRACKED initial RIGHT_BLOCK_BRACKED FOREND DOTCOMA {block++;printf("For cycle\n");}
+    | simple_expresion
 ;
 
-columnas:
-	IDENTIFIER DATATYPE COLUMN_MODIFIER
-	| IDENTIFIER DATATYPE
-	| IDENTIFIER DATATYPE COMA columnas
-	| IDENTIFIER DATATYPE COLUMN_MODIFIER COMA columnas
+
+
+simple_expresion:
+    GO Ydirection TILL IDENTIFIER BLOCKS DOTCOMA {printf("hello %d\n", $4);}
+    | GO Ydirection TILL VALUE BLOCKS DOTCOMA {printf("hello %d\n", $4);}
+    | GO Ydirection DOTCOMA {printf("hello %s\n", yylval.str);}
+    | DEFINE IDENTIFIER AS BLOCKS DOTCOMA {BlockList.push_back(new VarInt($2,strlen($2),block,0));printf("definiendo variable: %s\n", $2);}
+    | VALUE_SENTENCE mathematicExpresion SET OUT FOR IDENTIFIER DOTCOMA 
+{
+for (int i = 0; i < BlockList.size();i++){
+	if (strcmp(BlockList.at(i)->getName(), $6) == 0){
+		BlockList.back()->setInteger($2);
+		printf("el valor de \"%s\" es: %d\n", $6 , $2);
+		break;
+	}
+}
+
+}
+    | TURN turndirection DOTCOMA
+    | START DOTCOMA
+    | STOP DOTCOMA
+    | TURN ON DOTCOMA
+    | REST FOR aValue DOTCOMA
+    | PRINT aValue DOTCOMA { printf("el valor es: %d; \n", $2);}
 ;
 
+Ydirection:
+    STRAIGHT
+    | BACK
+;
+
+turndirection:
+    LEFT
+    | RIGHT
+    ;
+
+mathematicExpresion:
+    aValue {printf("valor = %d \n", $1);$$ = $1;}
+    | aValue OPERATOR mathematicExpresion {printf("on operator\n");$$ = $1 + $3;}
+;
+
+aValue:
+    IDENTIFIER 
+{int i = 0; for (; i < BlockList.size();i++){
+	if (strcmp(BlockList.at(i)->getName(), $1) == 0){
+		$$ = BlockList.back()->getInteger();
+		break;
+	}
+  }
+ if (i == BlockList.size()){printf("[error]: La variable \"%s\" no existe, se cerrara el programa!.\n", $1);err= 1;return 0;}
+}
+
+    | VALUE	{$$ = $1;}
+    ;
+
+
+condition:
+    aValue comparator aValue
+    ;
+
+
+comparator:
+    EQUAL
+    | NOT_EQUAL
+    | HIGH
+    | LESS
+    | EQUAL_HIGH
+    | EQUAL_LESS
+;
 
 %%
 
@@ -61,11 +168,10 @@ int main(int argc, char** args){
 				return -1;
 			}
 			yyout = fopen(args[2],"w+");
-			fputs("<db>\n",yyout);
 			yyparse();
-			fputs("</db>",yyout);
 			fclose(yyin);
 			fclose(yyout);
+
 			if (err){
 				remove(args[2]);
 				printf("Error de compilacion!\n");

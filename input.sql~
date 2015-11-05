@@ -8,8 +8,6 @@ Turn On;
 
 Define mibloque as Blocks;
 
-Value 1+2+3 set out for mibloque;
-
 Go Straight Till mibloque Blocks;
 Go Straight;
 Turn Left;
@@ -19,7 +17,7 @@ Turn Right;
 
 
 
-
+Value 1+2+3 set out for mibloque;
 
 
 For 5 Times [Walk 5 Steps] {
