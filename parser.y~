@@ -80,14 +80,14 @@ initial:
 
 expresion:
     WHEN condition THEN  LEFT_BLOCK_BRACKED initial RIGHT_BLOCK_BRACKED WHEND DOTCOMA {block++;}
-    | FOR_CYCLE VALUE TIMES LEFT_SQUARE_BRACKED WALK VALUE IDENTIFIER RIGHT_SQUARE_BRACKED LEFT_BLOCK_BRACKED initial RIGHT_BLOCK_BRACKED FOREND DOTCOMA {block++;printf("For cycle\n");}
+    | FOR_CYCLE VALUE TIMES LEFT_SQUARE_BRACKED WALK VALUE IDENTIFIER RIGHT_SQUARE_BRACKED LEFT_BLOCK_BRACKED initial RIGHT_BLOCK_BRACKED FOREND DOTCOMA {block++;printf("For cycle:\n");}
     | simple_expresion
 ;
 
 
 
 simple_expresion:
-    GO Ydirection TILL VALUE BLOCKS DOTCOMA {printf("hello %d\n", $4);}
+    GO Ydirection TILL IDENTIFIER BLOCKS DOTCOMA {printf("hello %s\n", $4);}
     | GO Ydirection TILL VALUE BLOCKS DOTCOMA {printf("hello %d\n", $4);}
     | GO Ydirection DOTCOMA {printf("hello %s\n", yylval.str);}
     | DEFINE IDENTIFIER AS BLOCKS DOTCOMA {BlockList.push_back(new VarInt($2,strlen($2),block,0));printf("definiendo variable: %s\n", $2);}
